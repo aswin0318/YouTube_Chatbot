@@ -1,0 +1,19 @@
+# virtual env
+venv/
+.env
+
+# python cache
+__pycache__/
+*.pyc
+
+# streamlit 
+.streamlit/
+
+# ChromaDB
+chroma_db/
+chroma/
+*.sqlite3
+
+# OS junk
+.DS_Store
+Thumbs.db
