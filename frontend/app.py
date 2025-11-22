@@ -13,7 +13,7 @@ url_btn =st.sidebar.button("Submit")
 
 if url_btn:
     if url_inp:
-        st.success("Transcript loaded successfully, you can now ask questions")
+        st.sidebar.success("Transcript loaded successfully, you can now ask questions")
         st.session_state.history = []
     else:
         st.warning("Paste the url")
