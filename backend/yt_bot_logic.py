@@ -1,7 +1,8 @@
 from youtube_transcript_api import YouTubeTranscriptApi
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
-from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.runnables import RunnableParallel, RunnablePassthrough, RunnableLambda
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import HumanMessage, AIMessage
@@ -25,7 +26,7 @@ def fetch_transcript(url: str) -> str:
 
 splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
 
-embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
+embedding=HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
 model = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash-lite",
@@ -46,7 +47,7 @@ chat_prompt = ChatPromptTemplate([
 def process_request(url : str , query : str , chat_history : list ):
     transcipt = fetch_transcript(url)
     chunks = splitter.create_documents([transcipt])
-    vector_store = Chroma.from_documents(chunks,embeddings)
+    vector_store = Chroma.from_documents(chunks,embedding)
     retriver = vector_store.as_retriever(search_type ='similarity',search_kwargs={'k':4})
     parallel_chain = RunnableParallel({
         'context' : retriver | RunnableLambda(format_docs),
