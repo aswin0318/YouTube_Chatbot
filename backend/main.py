@@ -1,6 +1,6 @@
 #API Endpoints for the application
 from fastapi import FastAPI
-from yt_bot_logic import process_request
+from backend.yt_bot_logic import process_request
 from pydantic import BaseModel
 
 app = FastAPI()
