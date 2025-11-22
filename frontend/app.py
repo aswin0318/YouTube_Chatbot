@@ -22,14 +22,39 @@ query = st.text_input("Ask Questions")
 qa_btn = st.button("Ask AI")
 
 if qa_btn and query and url_inp:
-    response = requests.post("http://127.0.0.1:8000/chat",
-        json={
-            "url" :  url_inp,
-            "query" : query,
-            "chat_history" : st.session_state.history
-        })
-    data = response.json()
-    st.session_state.history = data['chat_history']
+    try:
+        response = requests.post(
+            "http://127.0.0.1:8000/chat",
+            json={
+                "url": url_inp,
+                "query": query,
+                "chat_history": st.session_state.history
+            },
+            timeout=20
+        )
 
-    for msg in st.session_state.history:
-        st.write(f"**{msg['type']}**: {msg['content']}")
+        if response.status_code != 200:
+            st.error(f"Server Error ({response.status_code}) - could not process request.")
+            st.stop()
+        
+        data = response.json()
+
+        if "error" in data:
+            st.error(f"Transcript Error: {data['error']}")
+            st.stop()
+        
+        if not data.get("chat_history"):
+            st.warning("Transcript not available or could not be processed.")
+            st.stop()
+
+        st.session_state.history = data["chat_history"]
+
+        for msg in st.session_state.history:
+            st.write(f"**{msg['type']}**: {msg['content']}")
+
+    except requests.exceptions.ConnectionError:
+        st.error("Backend is not running. Start FastAPI server first.")
+        st.stop()
+    except Exception as e:
+        st.error(f"Unexpected error: {str(e)}")
+        st.stop()
