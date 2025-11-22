@@ -53,7 +53,7 @@ def process_request(url : str , query : str , chat_history : list ):
         'context' : retriver | RunnableLambda(format_docs),
         'query' : RunnablePassthrough()
     })
-    inject_history = lambda **x : {**x,'chat_history':chat_history}
+    inject_history = lambda x : {**x,'chat_history':chat_history}
     main_chain = parallel_chain | RunnableLambda(inject_history) | chat_prompt | model | parser
     result = main_chain.invoke(query)
     chat_history.extend([HumanMessage(content=query),AIMessage(content=result)])
